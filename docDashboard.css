@@ -1,0 +1,12 @@
+.full-height {
+    height: 100vh;
+}
+.sidebar {
+    height: 1020px;
+    width: 255px;
+    background-color: #f8f9fa;
+    border-right: 1px solid #dee2e6;
+}
+.content {
+    padding: 20px;
+}
