@@ -1,0 +1,138 @@
+<style>
+    h2{
+        font-family: 'Montserrat', sans-serif;
+    }
+    .appointments-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .appointments-table th,
+    .appointments-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    .appointments-table th {
+        background-color: #f2f2f2;
+    }
+
+    .view-button {
+        text-decoration: none;
+        color: #007bff;
+        cursor: pointer;
+    }
+</style>
+<h2 style="text-align: center; color: black;   font-weight: bold; background-color: #ffc107;"  >Upcoming Appointments</h2>
+<table class="appointments-table">
+    <thead>
+        <tr>
+            <th>Doctor</th>
+            <th>Date</th>
+            <th>Diagnosis</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% userAppointments.filter(appointment => !appointment.diagnosed).forEach(appointment => { %>
+            <tr>
+                <!-- Your existing appointment rendering logic -->
+                <td>
+                    <% appointment.d_id.forEach(doctor => { %>
+                        Dr. <%= doctor.fName %> <%= doctor.lName %>
+                    <% }); %>
+                </td>
+                <td><%= appointment.date %></td>
+                <td><%= appointment.diagnose_condition %></td>
+                <td>
+                    <span class="badge <%= appointment.appointmentStatus %>">
+                        <%= appointment.appointmentStatus %>
+                    </span>
+                </td>
+                <td><a href="#" class="view-button" data-appointment-id="<%= appointment._id %>">      
+                          <i class="fa-solid fa-eye fa-sm"></i>
+                </a></td>
+            </tr>
+        <% }); %>
+    </tbody>
+</table>
+<hr>
+<!-- Completed Appointments -->
+<h2 style="text-align: center; color: black;  font-weight: bold;background-color:#28a745;">Completed Appointments</h2>
+<table class="appointments-table">
+    <thead>
+        <tr>
+            <th>Doctor</th>
+            <th>Date</th>
+            <th>Diagnosis</th>
+            <th>Report</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% userAppointments.filter(appointment => appointment.diagnosed).forEach(appointment => { %>
+            <tr>
+                <!-- Your existing appointment rendering logic -->
+                <td>
+                    <% appointment.d_id.forEach(doctor => { %>
+                        Dr. <%= doctor.fName %> <%= doctor.lName %>
+                    <% }); %>
+                </td>
+                <td><%= appointment.date %></td>
+                <td><%= appointment.diagnose_condition %></td>
+                <td><a href="#" class="view-button" data-appointment-id="<%= appointment._id %>">
+                    <i class="fa-solid fa-file-medical fa-sm"></i>
+                </a>
+            </td>
+            </tr>
+        <% }); %>
+    </tbody>
+</table>
+
+<!-- Button to trigger the modal -->
+<button class="btn btn-primary btn-fixed-bottom-right" data-toggle="modal" data-target="#appointmentModal"><i class="fa-solid fa-plus fa-lg"></i></button>
+<div class="modal fade" id="appointmentModal" tabindex="-1" role="dialog" aria-labelledby="appointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <!-- Add your appointment booking form here -->
+            <div id="tab2" class="tabcontent appointment-form">
+                <h5 class="mb-1">Make an Appointment</h5>
+                <form action="/appointment" method="post">
+                    <div class="form-group">
+                        <label for="doctorSelect">Select Doctor:</label>
+                        <select id="doctorSelect" name="d_id" class="form-select" required>
+                            <option value="" disabled selected>Select a Doctor</option>
+                            <% doctors.forEach(doctor => { %>
+                                <option value="<%= doctor._id %>"><%= doctor.fName %> <%= doctor.lName %></option>
+                            <% }); %>
+                        </select>
+                                                
+                              </div>
+                    <div class="form-group">
+                        <label for="email">Diagnose condition:</label>
+                        <input type="text" id="email" name="diagnose_condition" class="form-control" >
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="date">Date:</label>
+                        <input type="date" id="date" name="date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="time">Time:</label>
+                        <input type="time" id="time" name="time" class="form-control" required>
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="notes">Additional Notes:</label>
+                        <textarea id="notes" name="notes" class="form-control" rows="4"></textarea>
+                    </div>
+            
+                    <button type="submit" class="btn btn-primary mt-3">Submit Appointment</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+

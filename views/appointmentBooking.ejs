@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filter Doctors</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .heading {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        select, input[type="text"], input[type="date"], input[type="time"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .doctor-item {
+            border-bottom: 1px solid #ccc;
+            padding: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .doctor-info {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .book-button {
+            background-color: #28a745;
+            color: #fff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .book-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 class="heading">Filter Doctors:</h2>
+    <div class="form-group">
+        <label for="specialty">Specialty:</label>
+        <select id="specialty" name="specialty">
+            <option value="">All Specialties</option>
+            <option value="Cardiology">Cardiology</option>
+            <option value="Dermatology">Dermatology</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="experience">Experience:</label>
+        <select id="experience" name="experience">
+            <option value="">Any Experience</option>
+            <option value="1-5">1-5 years</option>
+            <option value="6-10">6-10 years</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="insurance">Accepted Insurance:</label>
+        <select id="insurance" name="insurance">
+            <option value="">Any Insurance</option>
+            <option value="Insurance Company A">Insurance Company A</option>
+            <option value="Insurance Company B">Insurance Company B</option>
+        </select>
+    </div>
+    <button onclick="filterDoctors()">Apply Filters</button>
+    <button onclick="resetFilters()">Reset Filters</button>
+</div>
+
+<div class="container" id="doctorList">
+    <!-- Doctor list will be displayed here -->
+</div>
+<div class="container" id="successMessage" style="display: none;">
+    <p style="color: green;">Appointment booked successfully!</p>
+</div>
+
+<!-- Appointment booking form -->
+<div class="container" id="appointmentForm" style="display: none;">
+    <h2 class="heading">Book Appointment</h2>
+    <div class="form-group">
+        <label for="diagnose_condition">Diagnose condition:</label>
+        <input type="text" id="diagnose_condition" name="diagnose_condition">
+    </div>
+    <div class="form-group">
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" required>
+    </div>
+    <div class="form-group">
+        <label for="time">Time:</label>
+        <input type="time" id="time" name="time" required>
+    </div>
+    <div class="form-group">
+        <label for="notes">Additional Notes:</label>
+        <textarea id="notes" name="notes" rows="4"></textarea>
+    </div>
+    <button onclick="bookAppointment()">Book Appointment</button>
+</div>
+<script>
+    async function filterDoctors() {
+    const specialty = document.getElementById('specialty').value;
+    const experience = document.getElementById('experience').value;
+    const insurance = document.getElementById('insurance').value;
+
+    const formData = {
+        specialty: specialty || "",
+        experience: experience || "",
+        insurance: insurance || ""
+    };
+
+    try {
+        const response = await fetch('/filter_doctors', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        const doctors = await response.json();
+        displayDoctors(doctors);
+    } catch (error) {
+        console.error('Error fetching doctors:', error);
+    }
+}
+
+function displayDoctors(doctorList) {
+    const doctorListHTML = doctorList.map(doctor => `
+        <div>
+            <p>${doctor.fName} ${doctor.lName} - ${doctor.specialty}</p>
+            <button onclick="showAppointmentForm('${doctor._id}')">Book Appointment</button>
+        </div>
+    `).join('');
+    document.getElementById('doctorList').innerHTML = doctorListHTML;
+}
+
+function showAppointmentForm(doctorId) {
+    document.getElementById('doctorList').style.display = 'none';
+    const appointmentForm = document.getElementById('appointmentForm');
+    appointmentForm.style.display = 'block';
+
+    const doctorIdInput = document.createElement('input');
+    doctorIdInput.type = 'hidden';
+    doctorIdInput.name = 'doctorId';
+    doctorIdInput.value = doctorId;
+    appointmentForm.appendChild(doctorIdInput);
+}
+
+async function bookAppointment() {
+    const doctorId = document.querySelector('#appointmentForm [name="doctorId"]').value;
+    const diagnoseCondition = document.getElementById('diagnose_condition').value;
+    const date = document.getElementById('date').value;
+    const time = document.getElementById('time').value;
+    const notes = document.getElementById('notes').value;
+
+    const formData = {
+        doctorId: doctorId,
+        diagnoseCondition: diagnoseCondition,
+        date: date,
+        time: time,
+        notes: notes,
+    };
+
+    try {
+        const response = await fetch('/appointment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        if (response.ok) {
+            // Show success message
+            document.getElementById('successMessage').style.display = 'block';
+            console.log('Appointment booked successfully');
+        } else {
+            throw new Error('Failed to book appointment');
+        }
+    } catch (error) {
+        console.error('Error booking appointment:', error);
+    }
+}
+
+function resetFilters() {
+    // Reset all select elements to their first option (default) value
+    document.getElementById('specialty').value = "";
+    document.getElementById('experience').value = "";
+    document.getElementById('insurance').value = "";
+
+    // You may also want to clear the doctor list when resetting filters
+    document.getElementById('doctorList').innerHTML = "";
+}
+
+</script>
+</body>
