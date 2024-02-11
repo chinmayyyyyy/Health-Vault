@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+WyqDLO6Eur+eaoZOo+C49T5L1XQibN9x" crossorigin="anonymous">
+    <style>
+        .container {
+            margin-top: 20px;
+        }
+
+        body {
+            background-color: #D3D3D3;
+        }
+
+        .d-flex {
+            justify-content: space-between;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        h1 {
+            color: #007bff;
+        }
+
+        .lead {
+            margin-top: 10px;
+        }
+
+        .appointments-table,
+        .table-medication {
+            width: 100%;
+        }
+
+        /* Your existing styles here */
+
+        .container {
+            margin-top: 20px;
+        }
+
+        body {
+            background-color: #D3D3D3;
+        }
+
+        .nameSection {
+            background-color: #f8f9fa;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .vitals,
+        .extra-div1,
+        .extra-div2 {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px;
+        }
+
+        .info-box {
+            height: 200px;
+            width: 45%;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        h4 {
+            margin-bottom: 10px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Dashboard</h1>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <h1>Welcome, <%= patient.Fname %> <%= patient.Lname %>!</h1>
+                <p class="lead">Here's your dashboard with important information and actions:</p>
+                <table class="appointments-table table table-striped table-hover table-bordered caption-top">
+                    <thead>
+                        <tr>
+                            <th>Doctor</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% userAppointments.slice(0, 4).filter(appointment => !appointment.diagnosed).forEach(appointment => { %>
+                            <tr>
+                                <td>
+                                    <% appointment.d_id.forEach(doctor => { %>
+                                        Dr. <%= doctor.fName %> <%= doctor.lName %>
+                                    <% }); %>
+                                </td>
+                                <td><%= appointment.date %></td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-md-6">
+                <div>
+                    <table class="table-medication table table-striped table-hover table-bordered caption-top">
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Medication Name</th>
+                                <th scope="col">Medication Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% medications.slice(0, 4).forEach((medication, index) => { %>
+                                <tr>
+                                    <th scope="row"><%= index + 1 %></th>
+                                    <td><%= medication.medicationName %></td>
+                                    <td><%= medication.medicationStatus %></td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap script reference -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

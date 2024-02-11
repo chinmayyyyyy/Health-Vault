@@ -2,54 +2,23 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require('mongoose');
 const session = require("express-session");
+const app = express();
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const path = require('path');
+const { log } = require("console");
+const filePath = path.join(__dirname, 'public', 'files', 'loginActivities', 'signUp.html');
 const bcrypt = require('bcrypt');
 const flash = require("connect-flash");
 const ejs = require('ejs');
-
-// Initialize Express app
-const app = express();
-
-// Configure view engine
 app.set('view engine', 'ejs');
-
-// Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
+mongoose.connect('mongodb://127.0.0.1:27017/test');
+app.use(session({ secret: "545285225", resave: true, saveUninitialized: true }));
 app.use(flash()); 
-
-// Session middleware
-app.use(session({ 
-    secret: '4598520122', // Add a secret key for session encryption
-    resave: true,
-    saveUninitialized: true 
-}));
-
-
-// Initialize Passport
 app.use(passport.initialize());
 app.use(passport.session());
-
-// MongoDB connection
-mongoose.connect('mongodb://127.0.0.1:27017/health');
-
-// User schema
-const userSchema = new mongoose.Schema({
-    username: String,
-    email: String,
-    password: String,
-});
-
-// Define the validPassword method on the User model
-userSchema.methods.validPassword = function (password) {
-    return bcrypt.compareSync(password, this.password);
-}
-
-// Define User model
-const User = mongoose.model("User", userSchema);
-
-// Passport serialization and deserialization
 passport.serializeUser(function(user, done) {
     done(null, user.id); 
 });
@@ -61,8 +30,34 @@ passport.deserializeUser(async function(id, done) {
         done(err, null);
     }
 });
+// Server Side Scripting code
+app.get('/' , (req , res)=>{
+    res.sendFile(__dirname + '/home.html')
+})
+app.get('/signUp.html', (req, res) => {
+    res.sendFile(__dirname + '/signUp.html'); 
+});
+app.get('/registration', (req, res) => {
+    res.sendFile(__dirname + '/registration.html'); 
+});
+app.get('/docSignUp.html', (req, res) => {
+    res.sendFile(__dirname + '/docSignUp.html'); 
+});
+app.get('/doctor_registration', (req, res) => {
+    res.sendFile(__dirname + '/doctor_registration.html'); 
+});
+//Registration Model
+const userSchema = new mongoose.Schema({
+    username: String,
+    email: String,
+    password: String,
+});
 
-// Passport local strategy
+// Define the validPassword method on the User model
+userSchema.methods.validPassword = function (password) {
+    return bcrypt.compareSync(password, this.password);
+}
+const User = mongoose.model("User", userSchema);
 passport.use(new LocalStrategy(
     async (username, password, done) => {
         try {
@@ -82,28 +77,6 @@ passport.use(new LocalStrategy(
         }
     }
 ));
-// Get request 
-
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/home.html');
-});
-
-app.get('/signUp.html', (req, res) => {
-    res.sendFile(__dirname + '/signup.html'); 
-});
-
-app.get('/patientReg', (req, res) => {
-    res.sendFile(__dirname + '/patientregister.html'); 
-});
-
-app.get('/docSignUp.html', (req, res) => {
-    res.sendFile(__dirname + '/docSignUp.html'); 
-});
-
-app.get('/doctor_registration', (req, res) => {
-    res.sendFile(__dirname + '/docregistration.html'); 
-});
-
 // Registration route
 app.post('/signUp', (req, res) => {
     // Check the role submitted in the registration form
@@ -129,7 +102,7 @@ app.post('/signUp', (req, res) => {
                         res.redirect('/doctor_registration?userId=' + savedUser._id);
                     } else {
                         // Redirect patients to the patient registration form
-                        res.redirect('/patientReg?userId=' + savedUser._id);
+                        res.redirect('/registration?userId=' + savedUser._id);
                     }
                 })
                 .catch(err => {
@@ -273,7 +246,7 @@ app.route("/patients/:userId")
                 .populate('d_id', 'fName lName')
                 .exec();
             // Render the patient dashboard with all the data, including userAppointments
-            res.render('patientdash', {
+            res.render('patients', {
                 doctors: doctors,
                 patient: patient,
                 medicalHistoryEntries: medicalHistoryEntries,
@@ -378,7 +351,6 @@ app.post('/doctor_registration', async (req, res) => {
 
         // Save the new patient record
         const savedDocument = await newDoctor.save();
-        console.log("new doctor made");
         res.redirect('/docSignUp.html');
     } catch (err) {
         console.error(err);
@@ -475,7 +447,7 @@ app.route('/doctors/:userId')
             // Fetch diagnosed patients using the Appointment model
             const diagnosedPatients = await Appointment.find({ d_id: doctor._id, diagnosed: true }).populate('p_id', 'Fname Lname').exec();
             // Render the doctor's dashboard with appointments, all patients, and diagnosed patients
-            res.render('Doctor_dashboard', {
+            res.render('doctors', {
                 doctor: doctor,
                 doctorAppointments: appointments,
                 patients: patients,
@@ -512,7 +484,57 @@ const appointmentSchema = new mongoose.Schema({
     labResult: [{ type: mongoose.Schema.Types.ObjectId, ref: 'LabResult' }],
 });
 const Appointment = mongoose.model("Appointment", appointmentSchema);
-
+app.route("/appointment")
+    .get(function (req, res) {
+        Appointment.find({})
+            .populate('p_id') 
+            .populate('d_id') 
+           .exec()
+            .then(foundAppointment => {
+                res.status(200).json(foundAppointment);
+            })
+            .catch(err => {
+                console.error(err);
+                res.status(500).json({ error: "An error occurred" });
+            });
+    })
+    .post(function (req, res) {
+        const newAppointment = new Appointment(req.body);
+        // Assign the current user's ID (patient ID) to the p_id field
+        newAppointment.p_id = req.user.id;
+        newAppointment.appointmentStatus = "pending";
+        // Save the appointment
+        newAppointment.save()
+            .then(savedAppointment => {
+                // Update the patient's appointment reference
+                Patient.findByIdAndUpdate(req.user.id, { $push: { appointments: savedAppointment._id } })
+                    .then(() => {
+                        // Update the doctor's appointment reference
+                        Doctor.findByIdAndUpdate(req.body.d_id, { $push: { appointments: savedAppointment._id } })
+                            .then(() => {
+                                const confirmationData = {
+                                    status: 'Submited',
+                                    message: 'Your appointment has been Submited,wait for doctor to confirm it!'
+                                };
+                            
+                                // Render the confirmation page with dynamic values
+                                res.render('response', confirmationData);
+                            })
+                            .catch(err => {
+                                console.log(err);
+                                res.status(500).json({ error: "An error occurred when updating the doctor" });
+                            });
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).json({ error: "An error occurred when updating the patient" });
+                    });
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).json({ error: "An error occurred" });
+            });
+    });
     
 //Getting an specific Apppointemnt
 app.route("/appointments/:appointmentId")
@@ -814,6 +836,84 @@ app.get('/medical-history-form', async (req, res) => {
     }
 });
 
+// Making the patients medical history
+app.post('/save-medical-data', async (req, res) => {
+    try {
+        const doctorId = req.body.doctorId;
+        const patientId = req.body.patientId;
+        const appointmentId = req.body.appointment; // Retrieve the selected appointment
+        const condition = req.body.condition;
+        const stage = req.body.stage;
+        const treatment = req.body.treatment;
+        const notes = req.body.notes;
+        // Create medical history, medication, and lab results documents
+        const medicalHistory = new MedicalHistory({
+            d_id: doctorId,
+            p_id: patientId,
+            condition: req.body.condition,
+            stage: stage,
+            treatment: treatment,
+            notes: notes,
+            diagnosisDate : req.body.diagnosisDate,
+            appointment: appointmentId,
+        });
+
+        const medication = new Medication({
+            d_id: doctorId,
+            p_id: patientId,
+            medicationName: req.body.medicationName,
+            prescriptionDate: req.body.prescriptionDate,
+            dosageInstructions: req.body.dosageInstructions,
+            frequencyOfAdministration: req.body.frequencyOfAdministration,
+            medicationExpirationDate: req.body.medicationExpirationDate,
+            medicationStatus: req.body.medicationStatus,
+            appointment: appointmentId,
+        });
+
+        const labResult = new LabResult({
+            d_id: doctorId,
+            p_id: patientId,
+            test: req.body.test,
+            testName: req.body.testName,
+            testResult: req.body.testResult,
+            referenceRanges: req.body.referenceRanges,
+            interpretationOrComments: req.body.interpretationOrComments,
+            labNameOrFacility: req.body.labNameOrFacility,
+            appointment: appointmentId,
+        });
+        await Promise.all([medicalHistory.save(), medication.save(), labResult.save()]);
+        const existingAppointment = await Appointment.findById(appointmentId);
+        const existingPatient = await Patient.findById(patientId);
+        console.log("The existing patient which is found" + existingPatient);
+        if (!existingAppointment) {
+            return res.status(404).json({ message: 'Appointment not found' });
+        }
+        // Ensure that the arrays exist and initialize them as empty arrays
+        existingAppointment.medicalHistory = existingAppointment.medicalHistory || [];
+        existingAppointment.medications = existingAppointment.medications || [];
+        existingAppointment.labResult = existingAppointment.labResult || [];
+        // Push the medical data into the arrays
+        existingAppointment.medicalHistory.push(medicalHistory._id);
+        existingAppointment.medications.push(medication._id);
+        existingAppointment.labResult.push(labResult._id);
+        existingAppointment.diagnosed = true; // Set the diagnosed flag to true
+        existingPatient.medicalHistory.push(medicalHistory._id);
+        existingPatient.medications.push(medication._id);
+        existingPatient.labResult.push(labResult._id);
+
+        // Save the updated appointment
+        await existingAppointment.save();
+        await existingPatient.save();
+        const confirmationData = {
+            status: 'Saved',
+            message: 'Data has been saved Sucessfully. Thank you!'
+        };
+        res.render('response', confirmationData);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'An error occurred during data submission' });
+    }
+});
 
 app.listen(3000, function () {
     console.log("Server started on port 3000");

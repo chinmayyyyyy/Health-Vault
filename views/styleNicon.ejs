@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en" data-bs-theme="auto">
+  <head><script src="../assets/js/color-modes.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <meta name="description" content="">
+    <meta name="generator" content="Hugo 0.118.2">
+    <link rel="stylesheet" href="\css\dashboard.rtl.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/dashboard/">   
+<link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet">
+ <!--Fonts  -->
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300&family=Montserrat&family=Roboto&family=Roboto+Slab&display=swap" rel="stylesheet">
+
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300&family=Montserrat&family=Roboto&family=Roboto+Slab&display=swap" rel="stylesheet">
+<style>
+  /* Custom CSS for the .appointment-form class */
+  
+p{
+  font-family: 'Lato', sans-serif;
+ color:   #171810;
+}
+h1{
+  font-family: 'Montserrat', sans-serif;
+  color: #292F36;
+}
+
+.appointment-form {
+    padding: 20px;
+    background-color: #292F36;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    color: #FFFFFF;
+}
+
+.appointment-form form {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.appointment-form .form-group {
+    margin-bottom: 20px;
+}
+
+.appointment-form label {
+    font-weight: 600;
+}
+
+.appointment-form textarea {
+    resize: vertical;
+}
+
+  .btn-fixed-bottom-right {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+}
+.bi {
+display: inline-block;
+width: 1rem;
+height: 1rem;
+}
+        .nav-item {
+            color: aliceblue !important;
+        }
+
+        .sidebar .nav-link {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #FFFFFF;
+        }
+
+        .sidebar .nav-link.active {
+            color: #4ECDC4;
+        }
+
+        .sidebar-heading {
+            font-size: 0.75rem;
+        }
+
+        /* Navbar */
+        .navbar-brand {
+            font-weight: bolder;
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+            background-color: #FFFFFF;
+            color: #292F36 !important;
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.25);
+        }
+
+        .navbar .form-control {
+            padding: 0.75rem 1rem;
+        }
+
+        .navbar {
+            background-color: #FFFFFF !important;
+        }
+
+        .nameSection {
+            background-color: #4ECDC4;
+            color: #292F36;
+            width: 400px;
+            height: 200px;
+            margin: 10px;
+            padding: 20px;
+            font-family: 'Montserrat', sans-serif;
+            line-height: 10px;
+        }
+
+        .vitals,
+        .extra-div1,
+        .extra-div2 {
+            height: 100px;
+            width: 200px;
+            background-color: #292F36;
+            margin: 4px;
+            color: #FFFFFF;
+            float: right; /* Corrected to 'right' */
+            margin-top: 40px;
+            padding: 15px;
+        }
+
+        .container {
+            display: inline-table;
+        }
+
+        .nameSection,
+        .vitals,
+        .extra-div1,
+        .extra-div2 {
+            display: inline-block;
+        }
+
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+
+        .b-example-divider {
+            width: 100%;
+            height: 3rem;
+            background-color: rgba(0, 0, 0, 0.1);
+            border: solid rgba(0, 0, 0, 0.15);
+            border-width: 1px 0;
+            box-shadow: inset 0 0.5em 1.5em rgba(0, 0, 0, 0.1), inset 0 0.125em 0.5em rgba(0, 0, 0, 0.15);
+        }
+
+        .b-example-vr {
+            flex-shrink: 0;
+            width: 1.5rem;
+            height: 100vh;
+        }
+
+        .bi {
+            vertical-align: -.125em;
+            fill: currentColor;
+        }
+
+        .nav-scroller {
+            position: relative;
+            z-index: 2;
+            height: 2.75rem;
+            overflow-y: hidden;
+        }
+
+        .nav-scroller .nav {
+            display: flex;
+            flex-wrap: nowrap;
+            padding-bottom: 1rem;
+            margin-top: -1px;
+            overflow-x: auto;
+            text-align: center;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+        .bd-mode-toggle {
+            z-index: 1500;
+        }
+
+        .bd-mode-toggle .dropdown-menu .active .bi {
+            display: block !important;
+        }
+
+        .sidebar {
+            background-color: #292F36;
+            height: 800px;
+        }
+th{
+  font-family: 'Montserrat', sans-serif;
+}    
+td{
+    font-family: 'Roboto Slab', serif
+
+}
+.appointments-table .confirmed {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.appointments-table .pending {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.appointments-table .cancelled {
+    background-color: #dc3545;
+    color: #fff;
+}
+  </style>
+
+  
+  <!-- Custom styles for this template -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Custom styles for this template -->
+  <link href="css/dashboard.css" rel="stylesheet">
+</head>
+<body>
+
+<ul class="navbar-nav flex-row d-md-none">
+  <li class="nav-item text-nowrap">
+    <button class="nav-link px-3 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSearch" aria-controls="navbarSearch" aria-expanded="false" aria-label="Toggle search">
+      <svg class="bi"><use xlink:href="#search"/></svg>
+    </button>
+  </li>
+  <li class="nav-item text-nowrap">
+    <button class="nav-link px-3 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <svg class="bi"><use xlink:href="#list"/></svg>
+    </button>
+  </li>
+</ul>
+
+<div id="navbarSearch" class="navbar-search w-100 collapse">
+  <input class="form-control w-100 rounded-0 border-0" type="text" placeholder="Search" aria-label="Search">
+</div>
+</header>
