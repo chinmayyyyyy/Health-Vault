@@ -1,4 +1,4 @@
-# virtualHealthRecord
+# health vault
 
 ## Overview
 
@@ -26,7 +26,7 @@ The Virtual Health Record System is a secure and user-friendly application desig
       npm install
 3.Configure the application by updating the configuration files with your database connection details and secret key.
 
-  ![app js - virtualHealthRecord - Visual Studio Code 11_19_2023 3_14_45 PM](https://github.com/pro-Grammerrrr/virtualHealthRecord/assets/113549699/a26ff6b8-d311-48e9-8e3f-45e56351e30c)
+  
 
   this two line in the code where i have connected the mongo serve you have to use your own local host server and install mongo db to use the server's lines --{
                 
@@ -49,7 +49,5 @@ The Virtual Health Record System is a secure and user-friendly application desig
        2.Sign up for a new account or log in with existing credentials.
        3.Explore the different sections to manage your health records, prescriptions, appointments.
 
-you should see this after enetering the application :-
-![Virtual Health Record - Google Chrome 11_19_2023 4_11_03 PM](https://github.com/pro-Grammerrrr/virtualHealthRecord/assets/113549699/3e25c206-b814-4d2e-8374-c06d4058ec30)
-
+you should see this after enetering the application
 
